@@ -8,8 +8,6 @@ public class RegexUtils
 	public static String matchGroup(String pattern, String input) {
         Pattern pat = Pattern.compile(pattern, Pattern.DOTALL);
         Matcher mat = pat.matcher(input);
-
-
         if (mat.find()) {
             return mat.group();
         } else
