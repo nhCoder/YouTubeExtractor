@@ -33,23 +33,14 @@ _.jar will be available  soon_
 ```
 new YoutubeStreamExtractor(new YoutubeStreamExtractor.ExtractorListner(){
            @Override
- public void onExtractionDone(List<YoutubeMedia> adativeStream, final List<YoutubeMedia> muxedStream, YoutubeMeta meta) 
-	 
-	        {
+        public void onExtractionDone(List<YoutubeMedia> adativeStream, final List<YoutubeMedia> muxedStream, YoutubeMeta meta)          {
 						
-
-												   
-		 }
-
-@Override
-public void onExtractionGoesWrong(final ExtractorException e) 
-
-                {
-
-												   
-
-                }
-		}).Extract(YOUTUBE_ID/LINK); 
+         }
+       @Override
+       public void onExtractionGoesWrong(final ExtractorException e) 
+         {									
+         }
+         }).Extract(YOUTUBE_ID/LINK); 
 ```
 							 
 
