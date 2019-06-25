@@ -28,9 +28,12 @@ public class PlayerResponse {
 	public YoutubeMeta getVideoDetails() {
 		return videoDetails;
 	}
-}
+	
+	
+	
+	
 
-class StreamingData {
+public  class StreamingData {
 	
 	private String hlsManifestUrl;
 	private long expiresInSeconds;
@@ -48,24 +51,33 @@ class StreamingData {
 	public String getHlsManifestUrl() {
 		return hlsManifestUrl;
 	}
-}
-class PlayabilityStatus{
-	private String status;
-	private boolean playableInEmbed;
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
 	
-	public String getStatus() {
-		return status;
-	}
+	
+	
+	
+	
+}
 
-	public void setPlayableInEmbed(boolean playableInEmbed) {
-		this.playableInEmbed = playableInEmbed;
-	}
+	public class PlayabilityStatus{
+		private String status;
+		private boolean playableInEmbed;
 
-	public boolean isPlayableInEmbed() {
-		return playableInEmbed;
+		public void setStatus(String status) {
+			this.status = status;
+		}
+
+		public String getStatus() {
+			return status;
+		}
+
+		public void setPlayableInEmbed(boolean playableInEmbed) {
+			this.playableInEmbed = playableInEmbed;
+		}
+
+		public boolean isPlayableInEmbed() {
+			return playableInEmbed;
+		}
 	}
 }
+
+

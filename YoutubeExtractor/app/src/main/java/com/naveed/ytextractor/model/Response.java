@@ -27,10 +27,10 @@ public class Response {
 	}
 
 
-}
 
 
-class Args {
+
+public class Args {
 
 	private String adaptive_fmts;
 	private String player_response;
@@ -66,7 +66,7 @@ class Args {
 }
 
 
-class Assets {
+public class Assets {
 
 	private String js;
 
@@ -80,6 +80,7 @@ class Assets {
 		this.js = js;
 	}
 
+}
 }
 	
 	

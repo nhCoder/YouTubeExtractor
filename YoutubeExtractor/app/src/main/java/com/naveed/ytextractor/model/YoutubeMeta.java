@@ -177,8 +177,8 @@ public class YoutubeMeta {
 		this.viewCount = viewCount;
 	}
 
-}
-class Thumbnail {
+
+public class Thumbnail {
 
 	private List<Thumbnail_> thumbnails = new ArrayList<Thumbnail_>();
 
@@ -192,7 +192,7 @@ class Thumbnail {
 
 }
 
-class Thumbnail_ {
+public class Thumbnail_ {
 
 	private Integer height;
 	private String url;
@@ -222,6 +222,7 @@ class Thumbnail_ {
 		this.width = width;
 	}
 
+}
 }
 	
 	

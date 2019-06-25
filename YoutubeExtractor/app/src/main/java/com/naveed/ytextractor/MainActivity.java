@@ -133,8 +133,13 @@ public class MainActivity extends Activity {
 		mVideoView.requestFocus();
 		mVideoView.start();
 
+		
+
+	
 
 
+
+		
 	}
 
 

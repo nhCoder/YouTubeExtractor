@@ -10,7 +10,6 @@ import com.google.gson.JsonParser;
 import com.naveed.ytextractor.CipherManager;
 import com.naveed.ytextractor.model.PlayerResponse;
 import com.naveed.ytextractor.model.Response;
-import com.naveed.ytextractor.model.StreamingData;
 import com.naveed.ytextractor.model.YoutubeMedia;
 import com.naveed.ytextractor.model.YoutubeMeta;
 import com.naveed.ytextractor.utils.ContextUtils;
@@ -297,7 +296,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 	}
 	
-	private void parseLiveUrls(StreamingData data) throws Exception {
+	private void parseLiveUrls( PlayerResponse.StreamingData data) throws Exception {
 		
 		if(data.getHlsManifestUrl()==null){
 			throw new ExtractorException("No link for hls video");
