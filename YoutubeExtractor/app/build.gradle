@@ -1,0 +1,27 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.0"
+
+    defaultConfig {
+        applicationId "com.naveed.ytextractor"
+        minSdkVersion 16
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+	
+	compile 'com.linsea:universalvideoview:1.1.0@aar'
+	compile  'org.mozilla:rhino:1.7R4'
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}
