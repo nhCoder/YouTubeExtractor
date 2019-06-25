@@ -1,39 +1,55 @@
-
 # YouTubeExtractor
 
- A Youtube urls extractor for java & android for streaming and downloading purpose. 
+A Youtube urls extractor for java & android for streaming and downloading purpose. 
 
-   _I made this on my Android Device using AIDE(IDE),
- So i cant update gradle, so dont ask me_ 
+_I made this on my Android Device using AIDE(IDE),
+So i cant update gradle, so dont ask me_ 
 
- # Usage
+# Features
 
- Copy the classes or compile  project.
+- Extracts Muxed and Adaptive urls separately
+- Extracts Signature Protected Videos(like vevo) 
+- Extracts Live Videos Urls(hls)
+- Extracts video info(title,author,description,view,etc)
 
-  _.jar will be available  soon_
- # Dependencies Used
+ 
 
-  - Gson
-  - Mozilla Rhino
-  - UniversalVideView
+# Usage
 
+Copy the classes or compile  project.
 
- # Example
+_.jar will be available  soon_
 
+# Dependencies Used
 
- ```
- new YoutubeStreamExtractor(new YoutubeStreamExtractor.ExtractorListner(){
-
-   @Override
-   public void onExtractionGoesWrong(ExtractorException e) {
-    // TODO: Implement this method
-   }
-   @Override
-   public void onExtractionDone(List<YoutubeMedia> adativeStream, List<YoutubeMedia> muxedStream, YoutubeMeta meta) {
-    // TODO: Implement this method
-   }
-  }).Extract(youtube_id or link);
- ```
+- Gson
+- Mozilla Rhino
+- UniversalVideView(Used only for video testing)
 
 
+# Example
 
+
+```
+new YoutubeStreamExtractor(new YoutubeStreamExtractor.ExtractorListner(){
+
+											   @Override
+											   public void onExtractionDone(List<YoutubeMedia> adativeStream, final List<YoutubeMedia> muxedStream, YoutubeMeta meta) {
+
+												   
+											   }
+
+
+											   @Override
+											   public void onExtractionGoesWrong(final ExtractorException e) {
+
+												   
+
+											   }
+										   }).Extract(YOUTUBE_ID/LINK); 
+```
+
+
+
+
+	
