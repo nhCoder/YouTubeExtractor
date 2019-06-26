@@ -82,6 +82,7 @@ public class MainActivity extends Activity {
 		edit = (EditText)findViewById(R.id.mainEditText1);
 		btn = (Button)findViewById(R.id.mainButton1);
 		edit.setText("4H4Oizo7oOE");
+		edit.setHint("id or url");
 		btn.setOnClickListener((new OnClickListener(){
 
 								   @Override

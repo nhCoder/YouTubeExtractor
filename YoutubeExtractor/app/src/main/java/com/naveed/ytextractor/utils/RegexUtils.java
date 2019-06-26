@@ -17,13 +17,10 @@ public class RegexUtils
 	public static List<String> getAllMatches(String pattern, String input) {
         Pattern pat = Pattern.compile(pattern, Pattern.DOTALL);
         Matcher mat = pat.matcher(input);
-
 		List<String> list=new ArrayList<>();
-
         while(mat.find()) {
             list.add( mat.group());
         } 
-
 		return list;
 	}
 	

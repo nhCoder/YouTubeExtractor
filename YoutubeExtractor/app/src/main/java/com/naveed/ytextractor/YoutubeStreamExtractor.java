@@ -277,7 +277,6 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 		LogUtils.log(response.getAssets().getJs());
 		if (YTVideoMeta.getisLive() || YTVideoMeta.getIsLiveContent()) {
 			isLive=true;
-			return;
 		}
 		useCipher=YTVideoMeta.getUseChiper();
 		if(isLive)parseLiveUrls(playerResponse.getStreamingData());
