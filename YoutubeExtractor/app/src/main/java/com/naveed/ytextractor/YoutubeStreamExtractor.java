@@ -275,7 +275,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 		PlayerResponse playerResponse=new GsonBuilder().serializeNulls().create().fromJson(response.getArgs().getPlayerResponse(),PlayerResponse.class);
 		YTVideoMeta=playerResponse.getVideoDetails();
 		LogUtils.log(response.getAssets().getJs());
-		if (YTVideoMeta.getisLive() || YTVideoMeta.getIsLiveContent()) {
+		if (YTVideoMeta.getisLive() ||  ( YTVideoMeta.getIsLiveContent()&& playerResponse.getStreamingData().getHlsManifestUrl()!=null)) {
 			isLive=true;
 		}
 		useCipher=YTVideoMeta.getUseChiper();
@@ -283,18 +283,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 		
 }
 	
-	public  void CopytoClip(String x){
 
-        ((ClipboardManager)ContextUtils.context.getSystemService(ContextUtils.context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("clipboard", x));    
-
-		Toast.makeText(ContextUtils.context, "Copied", Toast.LENGTH_SHORT).show(); 
-
-
-
-
-
-	}
-	
 	private void parseLiveUrls( PlayerResponse.StreamingData data) throws Exception {
 		
 		if(data.getHlsManifestUrl()==null){
