@@ -24,12 +24,7 @@ import java.util.Map;
 public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 
-
-
 	Map<String,String> Headers=new HashMap<>();
-
-
-
 	List<YTMedia> adaptiveMedia=new ArrayList<>();
 	List<YTMedia> muxedMedia=new ArrayList<>();
 	String regexUrl=("(?<=url=).*");
