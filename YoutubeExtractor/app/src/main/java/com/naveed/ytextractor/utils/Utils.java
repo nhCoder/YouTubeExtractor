@@ -1,16 +1,17 @@
 package com.naveed.ytextractor.utils;
 
-import com.naveed.ytextractor.model.YoutubeMedia;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import com.naveed.ytextractor.model.YTMedia;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
-	public static List<YoutubeMedia> filterInvalidLinks(List<YoutubeMedia> urls) {
-		List<YoutubeMedia> workingLinks=new ArrayList<>();
-
-		for (YoutubeMedia media:urls) {
+	public static List<YTMedia> filterInvalidLinks(List<YTMedia> urls) {
+		List<YTMedia> workingLinks=new ArrayList<>();
+		for (YTMedia media:urls) {
 			if (!media.getUrl().contains("&dur=0.0")) {
-
 				workingLinks.add(media);
 			}
 		}
@@ -35,4 +36,9 @@ public class Utils {
 		return false;
 	}
 
+	public static void copyToBoard(String x){
+		ClipboardManager clipboard = (ClipboardManager)ContextUtils.context. getSystemService(Context.CLIPBOARD_SERVICE); 
+		ClipData clip = ClipData.newPlainText("text", x);
+		clipboard.setPrimaryClip(clip);
+	}
 }

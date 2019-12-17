@@ -1,23 +1,19 @@
 package com.naveed.ytextractor;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.naveed.ytextractor.CipherManager;
 import com.naveed.ytextractor.model.PlayerResponse;
 import com.naveed.ytextractor.model.Response;
-import com.naveed.ytextractor.model.YoutubeMedia;
+import com.naveed.ytextractor.model.StreamingData;
+import com.naveed.ytextractor.model.YTMedia;
 import com.naveed.ytextractor.model.YoutubeMeta;
-import com.naveed.ytextractor.utils.ContextUtils;
 import com.naveed.ytextractor.utils.HTTPUtility;
 import com.naveed.ytextractor.utils.LogUtils;
 import com.naveed.ytextractor.utils.RegexUtils;
 import com.naveed.ytextractor.utils.Utils;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,18 +30,9 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 
 
-	List<YoutubeMedia> adaptiveMedia=new ArrayList<>();
-	List<YoutubeMedia> muxedMedia=new ArrayList<>();
-	
-	String regexItag=("(?<=itag=).*");
+	List<YTMedia> adaptiveMedia=new ArrayList<>();
+	List<YTMedia> muxedMedia=new ArrayList<>();
 	String regexUrl=("(?<=url=).*");
-	String regexQualitylabel="(?<=quality_label=).*";
-	String regexType="(?<=type=).*";
-	String regexResSize="(?<=size=).*";
-	String regexBitrate="(?<=bitrate=).*";
-	String regexExtension="(?<=(video|audio)/).*?(?=\\;)";
-	String regexCodec="(?<=(codecs=)\").*?(?=\")";
-	String regextypeVideoAudio=".*?(?=/)";
 	String regexYtshortLink="(http|https)://(www\\.|)youtu.be/.*";
 	String regexPageLink = ("(http|https)://(www\\.|m.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
 	String regexFindReason="(?<=(class=\"message\">)).*?(?=<)";
@@ -54,11 +41,11 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 	private ExtractorException Ex;
 	List<String> reasonUnavialable=Arrays.asList(new String[]{"This video is unavailable on this device.","Content Warning","who has blocked it on copyright grounds."});
 	Handler han=new Handler(Looper.getMainLooper());
-	private YoutubeMeta YTVideoMeta;
 	private Response response;
+	private YoutubeMeta ytmeta;
 
-	private boolean isLive;
-	private boolean useCipher;
+
+
 
 
 	public YoutubeStreamExtractor(ExtractorListner EL) {
@@ -77,15 +64,15 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 	public void Extract(String VideoId) {
 		this.execute(VideoId);
 	}
-	
-	
+
+
 
 	@Override
 	protected void onPostExecute(Void result) {
 		if (Ex != null) {
 			listener.onExtractionGoesWrong(Ex);
-		} else
-			listener.onExtractionDone(adaptiveMedia, muxedMedia, YTVideoMeta);
+		} else 
+			listener.onExtractionDone(adaptiveMedia, muxedMedia, ytmeta);
 
 	}
 
@@ -107,220 +94,131 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 
 	@Override
-	protected Void doInBackground(String[] ids)  {
+	protected Void doInBackground(String[] ids) {
 
 		String Videoid=Utils.extractVideoID(ids[0]);
-		
         String jsonBody = null;
-
         try {
 			String body = HTTPUtility.downloadPageSource("https://www.youtube.com/watch?v=" + Videoid + "&has_verified=1&bpctr=9999999999", Headers);
 			jsonBody = parsePlayerConfig(body);
-			parseJson(jsonBody);
-			parseUrls();
-		}
-
-        catch (Exception e) {
+			//Utils.copyToBoard(jsonBody);
+			PlayerResponse playerResponse=parseJson(jsonBody);
+			ytmeta = playerResponse.getVideoDetails();
+			if (playerResponse.getVideoDetails().getisLive()) {
+				parseLiveUrls(playerResponse.getStreamingData());
+			} else {
+				adaptiveMedia =	parseUrls(playerResponse.getStreamingData().getAdaptiveFormats());
+				muxedMedia =	parseUrls(playerResponse.getStreamingData().getFormats());
+			}
+		} catch (Exception e) {
 			LogUtils.log(Arrays.toString(e.getStackTrace()));// e.toString());
 			Ex = new ExtractorException("Error While getting Youtube Data:" + e.getMessage());
 			this.cancel(true);
 		}
-
 		return null;
 	}
 
+	/*this function creates Json models using Gson*/
+	private PlayerResponse parseJson(String body) throws Exception {
+		JsonParser parser=new JsonParser();
+		response = new GsonBuilder().serializeNulls().create().fromJson(parser.parse(body), Response.class);
+		return new GsonBuilder().serializeNulls().create().fromJson(response.getArgs().getPlayerResponse(), PlayerResponse.class);
+	}
+
+	/*This function is used to check if webpage contain steam data and then gets the Json part of from the page using regex*/
 	private String parsePlayerConfig(String body) throws ExtractorException {
 
-		if(Utils.isListContain(reasonUnavialable,RegexUtils.matchGroup(regexFindReason,body))){
-			throw new ExtractorException(RegexUtils.matchGroup(regexFindReason,body));
+		if (Utils.isListContain(reasonUnavialable, RegexUtils.matchGroup(regexFindReason, body))) {
+			throw new ExtractorException(RegexUtils.matchGroup(regexFindReason, body));
 		}
-		
-		if(body.contains("ytplayer.config")){
-			return RegexUtils.matchGroup(regexPlayerJson,body);
-		}else{
+		if (body.contains("ytplayer.config")) {
+			return RegexUtils.matchGroup(regexPlayerJson, body);
+		} else {
 			throw new ExtractorException("This Video is unavialable");
 		}
-	
 	}
 
 
 
 
+	/*independent function Used to parse urls for adaptive & muxed stream with cipher protection*/
 
-	private void parseUrls() {
-
+	private List<YTMedia> parseUrls(YTMedia[] rawMedia) {
+		List<YTMedia> links=new ArrayList<>();
 		try {
-			if (!isLive) {
-				parseAdaptiveUrls();	
-				parseMuxedUrls();
+			for (int x=0;x < rawMedia.length;x++) {
+				YTMedia media=rawMedia[x];
+				if (media.useCipher()) {
+					String tempUrl=URLDecoder.decode(RegexUtils.matchGroup(regexUrl, media.getCipher()));
+					for (String url_part:tempUrl.split("&")) {
+						if (url_part.startsWith("s=")) {
+							String decodedSig=CipherManager.dechiperSig(URLDecoder.decode(url_part.replace("s=", "")), response.getAssets().getJs());
+							String FinalUrl;
 
+							if (tempUrl.contains("&lsig=")) {
+								FinalUrl = tempUrl + "&sig=" + decodedSig;
+							} else {
+								FinalUrl = tempUrl + "&signature=" + decodedSig;
+							}
+							media.setUrl(FinalUrl);
+							links.add(media);
+							LogUtils.log(FinalUrl);
+						}
+					}
+				}
 			}
-		}
-		catch (IOException e) {
+
+		} catch (Exception e) {
 			Ex = new ExtractorException(e.getMessage());
 			this.cancel(true);
 		}
-	}
-
-	private void parseMuxedUrls() throws IOException {
-		String url_encoded_fmt_stream_map=response.getArgs().getUrlEncodedFmtStreamMap();
-		if (url_encoded_fmt_stream_map.equals("") | url_encoded_fmt_stream_map == null)return;
-		String[] rawUrls=url_encoded_fmt_stream_map.split(",");
-
-
-		for (int x=0;x < rawUrls.length;x++) {
-
-			YoutubeMedia media=new YoutubeMedia();
-
-			String[] Decodedurl= rawUrls[x].split("&");
-			for (String part:Decodedurl) {
-
-				if (part.startsWith("url=")) {
-					media.setUrl(URLDecoder.decode(RegexUtils.matchGroup(regexUrl, part)));
-				}
-				if (part.startsWith("s=") & useCipher) {		
-					media.setDechiperedSig(CipherManager.dechiperSig(URLDecoder.decode(part.replace("s=", "")), response.getAssets().getJs()));
-				}
-				if (part.startsWith("size=")) {		
-					media.setResSize(RegexUtils.matchGroup(regexResSize, part));
-				}
-				if (part.startsWith("bitrate=")) {		
-					media.setBitrate(RegexUtils.matchGroup(regexBitrate, part));
-				}
-				if (part.startsWith("itag=")) {		
-					media.setItag(RegexUtils.matchGroup(regexItag, part));
-				}
-				if (part.startsWith("quality_label=")) {		
-					media.setResolution(RegexUtils.matchGroup(regexQualitylabel, part));
-				}
-				if (part.startsWith("type=")) {		
-					String type=URLDecoder.decode(RegexUtils.matchGroup(regexType, part));
-
-					media.setExtension(RegexUtils.matchGroup(regexExtension, type));
-					media.setCodec(RegexUtils.matchGroup(regexCodec, type));
-					media.setIsAudioOnly(false);
-					media.setIsVideoOnly(false);					
-					media.setIsMuxed(true);
-				}		
-
-			}
-			muxedMedia.add(media);
-
-		}
-
-		muxedMedia =Utils.	filterInvalidLinks(muxedMedia);
+		return links;
 	}
 
 
 
+	/*This funtion parse live youtube videos links from streaming data  */
 
-	private void parseAdaptiveUrls() throws IOException {
-
-		String adaptive_fmts=response.getArgs().getAdaptiveFmts();
-		String[] rawUrls=adaptive_fmts.split(",");
-
-
-		for (int x=0;x < rawUrls.length;x++) {
-
-			YoutubeMedia media=new YoutubeMedia();
-
-			String[] Decodedurl= rawUrls[x].split("&");
-			for (String part:Decodedurl) {
-
-				if (part.startsWith("url=")) {
-					media.setUrl(URLDecoder.decode(RegexUtils.matchGroup(regexUrl, part)));
-				}
-				if (part.startsWith("s=") & useCipher) {		
-					media.setDechiperedSig(CipherManager.dechiperSig(URLDecoder.decode(part.replace("s=", "")), response.getAssets().getJs()));
-				}
-				if (part.startsWith("size=")) {		
-					media.setResSize(RegexUtils.matchGroup(regexResSize, part));
-				}
-				if (part.startsWith("bitrate=")) {		
-					media.setBitrate(RegexUtils.matchGroup(regexBitrate, part));
-				}
-				if (part.startsWith("itag=")) {		
-					media.setItag(RegexUtils.matchGroup(regexItag, part));
-				}
-				if (part.startsWith("quality_label=")) {		
-					media.setResolution(RegexUtils.matchGroup(regexQualitylabel, part));
-				}
-				if (part.startsWith("type=")) {		
-					String type=URLDecoder.decode(RegexUtils.matchGroup(regexType, part));
-					media.setExtension(RegexUtils.matchGroup(regexExtension, type));
-					media.setCodec(RegexUtils.matchGroup(regexCodec, type));
-					if (RegexUtils.matchGroup(regextypeVideoAudio, type).equals("audio")) {
-						media.setIsAudioOnly(true);
-						media.setIsVideoOnly(false);					
-					} else {
-						media.setIsAudioOnly(false);media.setIsVideoOnly(true);				
-					}
-
-				}		
-
-			}
-			adaptiveMedia.add(media);
-
-		}
-
-		adaptiveMedia =Utils.	filterInvalidLinks(adaptiveMedia);
-	}
-
-
-
-	private void parseJson(String body) throws Exception {
-		JsonParser parser=new JsonParser();
-		
-		response=new GsonBuilder().serializeNulls().create().fromJson(parser.parse(body),Response.class);
-		PlayerResponse playerResponse=new GsonBuilder().serializeNulls().create().fromJson(response.getArgs().getPlayerResponse(),PlayerResponse.class);
-		YTVideoMeta=playerResponse.getVideoDetails();
-		LogUtils.log(response.getAssets().getJs());
-		if (YTVideoMeta.getisLive() ||  ( YTVideoMeta.getIsLiveContent()&& playerResponse.getStreamingData().getHlsManifestUrl()!=null)) {
-			isLive=true;
-		}
-		useCipher=YTVideoMeta.getUseChiper();
-		if(isLive)parseLiveUrls(playerResponse.getStreamingData());
-		
-}
-	
-
-	private void parseLiveUrls( PlayerResponse.StreamingData data) throws Exception {
-		
-		if(data.getHlsManifestUrl()==null){
+	private void parseLiveUrls(StreamingData streamData) throws Exception {
+		if (streamData.getHlsManifestUrl() == null) {
 			throw new ExtractorException("No link for hls video");
 		}
-		
-		LogUtils.log(data.getHlsManifestUrl());
-		String hlsPageSource=HTTPUtility.downloadPageSource(data.getHlsManifestUrl());
-
-		String regexhlsLinks="(https://manifest.googlevideo.com/).*?((?=\\#)|\\z| )";
-		List<String> Livelinks= RegexUtils.getAllMatches(regexhlsLinks, hlsPageSource);
-		//List<String> linksInfo=re
-		for (String s:Livelinks) {
-			YoutubeMedia media=new YoutubeMedia();
-			media.setUrl(s);
-			media.setIsMuxed(true);
+		String hlsPageSource=HTTPUtility.downloadPageSource(streamData.getHlsManifestUrl());
+		String regexhlsLinks="(#EXT-X-STREAM-INF).*?(index.m3u8)";
+		List<String> rawData= RegexUtils.getAllMatches(regexhlsLinks, hlsPageSource);
+		for (String data:rawData) {
+			YTMedia media=new YTMedia();
+			String[] info_list=RegexUtils.matchGroup("(#).*?(?=https)", data).split(",");
+			String live_url=RegexUtils.matchGroup("(https:).*?(index.m3u8)", data);
+			media.setUrl(live_url);
+			for (String info:info_list) {
+				if (info.startsWith("BANDWIDTH")) {
+					media.setBitrate(Integer.valueOf(info.replace("BANDWIDTH=", "")));
+				}
+				if (info.startsWith("CODECS")) {
+					media.setMimeType((info.replace("CODECS=", "").replace("\"", "")));
+				}
+				if (info.startsWith("FRAME-RATE")) {
+					media.setFps(Integer.valueOf((info.replace("FRAME-RATE=", ""))));
+				}
+				if (info.startsWith("RESOLUTION")) {
+					String[] RESOLUTION= info.replace("RESOLUTION=", "").split("x");
+					media.setWidth(Integer.valueOf(RESOLUTION[0]));
+					media.setHeight(Integer.valueOf(RESOLUTION[1]));
+					media.setQualityLabel(RESOLUTION[1] + "p");
+				}
+			}
+			LogUtils.log(media.getUrl());
 			muxedMedia.add(media);
-			//LogUtils.log(s);
 		}
 
+
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-
 
 	public interface ExtractorListner {
 		void onExtractionGoesWrong(ExtractorException e)
-		void onExtractionDone(List<YoutubeMedia> adativeStream, List<YoutubeMedia> muxedStream, YoutubeMeta meta)
+		void onExtractionDone(List<YTMedia> adativeStream, List<YTMedia> muxedStream, YoutubeMeta meta)
 
 	}
 
-}
+}     

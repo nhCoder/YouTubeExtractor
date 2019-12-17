@@ -7,11 +7,11 @@ public class LogUtils
 {
 	public static void log(String x){
 		if(BuildConfig.DEBUG)
-		Log.d("Naveed",x);
+		Log.i("Naveed",x);
 	}
 	public static void log(int x){
 		if(BuildConfig.DEBUG)
-			Log.d("Naveed",String.valueOf(x));
+			Log.i("Naveed",String.valueOf(x));
 	}
 	
 }

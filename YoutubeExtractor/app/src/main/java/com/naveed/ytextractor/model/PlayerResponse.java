@@ -33,30 +33,7 @@ public class PlayerResponse {
 	
 	
 
-public  class StreamingData {
-	
-	private String hlsManifestUrl;
-	private long expiresInSeconds;
 
-	public void setExpiresInSeconds(long expiresInSeconds) {
-		this.expiresInSeconds = expiresInSeconds;
-	}
-
-	public long getExpiresInSeconds() {
-		return expiresInSeconds;
-	}
-	public void setHlsManifestUrl(String hlsManifestUrl) {
-		this.hlsManifestUrl = hlsManifestUrl;
-	}
-	public String getHlsManifestUrl() {
-		return hlsManifestUrl;
-	}
-	
-	
-	
-	
-	
-}
 
 	public class PlayabilityStatus{
 		private String status;

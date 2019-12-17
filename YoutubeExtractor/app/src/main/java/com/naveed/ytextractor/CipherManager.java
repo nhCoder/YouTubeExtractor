@@ -17,7 +17,6 @@ public class CipherManager {
 
 	
 	private  static String getDecipherCode(String Basejs) {
-
 		String DechipherCode;
 		String DecipherFun="decipher=function(a)" + RegexUtils.matchGroup(RegexDesipherFunctionCode, Basejs);
 		String RawName=RegexUtils.matchGroup(RegexVarName, DecipherFun).replace("$","\\$");;
@@ -25,35 +24,26 @@ public class CipherManager {
 		RegexFindVarCode = "var\\s" + RealVarName + "=.*?\\};";	// Word 1
 		String varCode=RegexUtils.matchGroup(RegexFindVarCode, Basejs);
 		DechipherCode = DecipherFun + "\n" + varCode;
-		LogUtils.log(DechipherCode);
+		//LogUtils.log("code= "+DechipherCode);
 		return DechipherCode;
-
 	}
 
-	
+	/*this function checks if the deciphered findings is already present if not gets the funtion*/
 	public  static String dechiperSig(String sig,String playerUrl) throws IOException{
 		if(cachedDechiperFunction==null){
 			cachedDechiperFunction=getDecipherCode(getPlayerCode(playerUrl));
 		}
-		
 		return RhinoEngine(sig);
 	}
 	
 	
-	
+	/* just gets the js player file content */
 	private static String getPlayerCode(String playerUrl) throws IOException {
-
-   
         return HTTPUtility.downloadPageSource(playerUrl);
-       
     }
 
 	
-
-
-
 	private static String RhinoEngine(String s) {
-		
 		Context rhino = Context.enter();
 		rhino.setOptimizationLevel(-1);
 		try {
@@ -71,12 +61,7 @@ public class CipherManager {
 		finally {
 			Context.exit();
 		}
-		
 		return s;
 	}
 
-	
-	
-	
-	
 }
