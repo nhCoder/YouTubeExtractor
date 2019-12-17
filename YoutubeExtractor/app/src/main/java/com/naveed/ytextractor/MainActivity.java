@@ -112,6 +112,7 @@ public class MainActivity extends Activity {
 											   @Override
 											   public void onExtractionDone(List<YTMedia> adativeStream, final List<YTMedia> muxedStream, YoutubeMeta meta) {
 
+												   urls_li.clear();
 												   for (YTMedia c:muxedStream) {
 													   urls_li.add(c.getUrl());
 													   adapter.notifyDataSetChanged();
@@ -120,8 +121,8 @@ public class MainActivity extends Activity {
 													   urls_li.add(c.getUrl());
 													   adapter.notifyDataSetChanged();
 												   }
-												   Toast.makeText(getApplicationContext(), meta.getTitle(), Toast.LENGTH_LONG).show();
-												   Toast.makeText(getApplicationContext(), meta.getAuthor(), Toast.LENGTH_LONG).show();
+												   //Toast.makeText(getApplicationContext(), meta.getTitle(), Toast.LENGTH_LONG).show();
+												  Toast.makeText(getApplicationContext(), meta.getAuthor(), Toast.LENGTH_LONG).show();
 
 												   if (muxedStream.isEmpty()) {
 													   LogUtils.log("null ha");

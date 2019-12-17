@@ -66,9 +66,9 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 	protected void onPostExecute(Void result) {
 		if (Ex != null) {
 			listener.onExtractionGoesWrong(Ex);
-		} else 
+		} else {
 			listener.onExtractionDone(adaptiveMedia, muxedMedia, ytmeta);
-
+			}
 	}
 
 	@Override
@@ -149,7 +149,6 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 						if (url_part.startsWith("s=")) {
 							String decodedSig=CipherManager.dechiperSig(URLDecoder.decode(url_part.replace("s=", "")), response.getAssets().getJs());
 							String FinalUrl;
-
 							if (tempUrl.contains("&lsig=")) {
 								FinalUrl = tempUrl + "&sig=" + decodedSig;
 							} else {
@@ -160,6 +159,8 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 							LogUtils.log(FinalUrl);
 						}
 					}
+				}else{
+					links.add(media);
 				}
 			}
 
