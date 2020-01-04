@@ -68,7 +68,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 			listener.onExtractionGoesWrong(Ex);
 		} else {
 			listener.onExtractionDone(adaptiveMedia, muxedMedia, ytmeta);
-			}
+		}
 	}
 
 	@Override
@@ -96,16 +96,25 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
         try {
 			String body = HTTPUtility.downloadPageSource("https://www.youtube.com/watch?v=" + Videoid + "&has_verified=1&bpctr=9999999999", Headers);
 			jsonBody = parsePlayerConfig(body);
-			//Utils.copyToBoard(jsonBody);
+
 			PlayerResponse playerResponse=parseJson(jsonBody);
 			ytmeta = playerResponse.getVideoDetails();
+			//Utils.copyToBoard(playerResponse.getStreamingData().);
 			if (playerResponse.getVideoDetails().getisLive()) {
 				parseLiveUrls(playerResponse.getStreamingData());
 			} else {
-				adaptiveMedia =	parseUrls(playerResponse.getStreamingData().getAdaptiveFormats());
-				muxedMedia =	parseUrls(playerResponse.getStreamingData().getFormats());
+				StreamingData sd=playerResponse.getStreamingData();
+				LogUtils.log("sizea= " + sd.getAdaptiveFormats().length);
+				LogUtils.log("sizem= " + sd.getFormats().length);
+
+				adaptiveMedia =	parseUrls(sd.getAdaptiveFormats());
+				muxedMedia =	parseUrls(sd.getFormats());
+				LogUtils.log("sizeXa= " + adaptiveMedia.size());
+				LogUtils.log("sizeXm= " + muxedMedia.size());
+
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			LogUtils.log(Arrays.toString(e.getStackTrace()));// e.toString());
 			Ex = new ExtractorException("Error While getting Youtube Data:" + e.getMessage());
 			this.cancel(true);
@@ -143,33 +152,54 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 		try {
 			for (int x=0;x < rawMedia.length;x++) {
 				YTMedia media=rawMedia[x];
+				LogUtils.log(media.getCipher() != null ? media.getCipher(): "null cip");
+
 				if (media.useCipher()) {
-					String tempUrl=URLDecoder.decode(RegexUtils.matchGroup(regexUrl, media.getCipher()));
-					for (String url_part:tempUrl.split("&")) {
-						if (url_part.startsWith("s=")) {
-							String decodedSig=CipherManager.dechiperSig(URLDecoder.decode(url_part.replace("s=", "")), response.getAssets().getJs());
-							String FinalUrl;
-							if (tempUrl.contains("&lsig=")) {
-								FinalUrl = tempUrl + "&sig=" + decodedSig;
-							} else {
-								FinalUrl = tempUrl + "&signature=" + decodedSig;
+					String tempUrl = "";
+					String decodedSig = "";
+					for (String partCipher:media.getCipher().split("&")) {
+
+						
+						
+						if (partCipher.startsWith("s=")) {
+							decodedSig = CipherManager.dechiperSig(URLDecoder.decode(partCipher.replace("s=", "")), response.getAssets().getJs());
+						}
+
+						if (partCipher.startsWith("url=")) {
+							 tempUrl=URLDecoder.decode(partCipher.replace("url=", ""));
+
+							for (String url_part:tempUrl.split("&")) {
+								if (url_part.startsWith("s=")) {
+									decodedSig = CipherManager.dechiperSig(URLDecoder.decode(url_part.replace("s=", "")), response.getAssets().getJs());
+								}
 							}
-							media.setUrl(FinalUrl);
-							links.add(media);
-							LogUtils.log(FinalUrl);
 						}
 					}
-				}else{
+						
+					String FinalUrl;
+					if (tempUrl.contains("&lsig=")) {
+						FinalUrl = tempUrl + "&sig=" + decodedSig;
+					} else {
+						FinalUrl = tempUrl + "&signature=" + decodedSig;
+					}			
+					media.setUrl(FinalUrl);
+					links.add(media);
+					
+
+				} else {
 					links.add(media);
 				}
 			}
 
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			Ex = new ExtractorException(e.getMessage());
 			this.cancel(true);
 		}
 		return links;
 	}
+
+	
 
 
 

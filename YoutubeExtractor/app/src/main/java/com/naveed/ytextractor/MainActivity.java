@@ -123,7 +123,10 @@ public class MainActivity extends Activity {
 												   }
 												   //Toast.makeText(getApplicationContext(), meta.getTitle(), Toast.LENGTH_LONG).show();
 												  Toast.makeText(getApplicationContext(), meta.getAuthor(), Toast.LENGTH_LONG).show();
-
+												   if (adativeStream.isEmpty()) {
+													   LogUtils.log("null ha");
+													   return;
+												   }
 												   if (muxedStream.isEmpty()) {
 													   LogUtils.log("null ha");
 													   return;

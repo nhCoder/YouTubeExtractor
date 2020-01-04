@@ -203,7 +203,8 @@ public class YTMedia
 	}
 	
 	public boolean useCipher(){
-		return cipher!=null && url==null;
+		
+		return (cipher!=null && cipher.contains("s="));
 		
 	}
 	
