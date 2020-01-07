@@ -4,7 +4,7 @@ A Youtube urls extractor for java & android for streaming and downloading purpos
 
 I made this on my Android Device using AIDE(IDE), So i cant update gradle, so dont ask me
 
-[Test Apk](https://github.com/naveedhassan913/YouTubeExtractor/blob/master/YoutubeExtractor/app/build/bin/app.apk)
+[Test Apk](https://github.com/naveedhassan913/YouTubeExtractor/raw/master/YoutubeExtractor/app/build/bin/app.apk)
 
 ## Features 
 - Extracts Muxed and Adaptive urls separately
