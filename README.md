@@ -6,7 +6,12 @@ I made this on my Android Device using AIDE(IDE), So i cant update gradle, so do
 
 [Test Apk](https://github.com/naveedhassan913/YouTubeExtractor/blob/master/YoutubeExtractor/app/build/bin/app.apk)
 
-Features • Extracts Muxed and Adaptive urls separately • Extracts Signature Protected Videos(like vevo) • Extracts Live Videos Urls(hls) • Extracts video info(title,author,description,view,etc) • Extracts Age restricted videos (Uses Cookie from a Google account)
+## Features
+- Extracts Muxed and Adaptive urls separately
+- Extracts Signature Protected Videos(like vevo) 
+- Extracts Live Videos Urls(hls)
+- Extracts video info(title,author,description,view,etc)
+- Extracts Age restricted videos (Uses Cookie from a Google account)
 
 Usage
 
