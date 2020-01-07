@@ -43,6 +43,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 
 
+
 	public YoutubeStreamExtractor(ExtractorListner EL) {
 		this.listener = EL;
 		Headers.put("Accept-Language", "en");
@@ -50,6 +51,12 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 	public void setHeaders(Map<String, String> headers) {
 		Headers = headers;
+	}
+
+	public YoutubeStreamExtractor useDefaultLogin() {
+		Headers.put("Cookie", Utils.loginCookie);
+		setHeaders(Headers);
+		return this;
 	}
 
 	public Map<String, String> getHeaders() {
@@ -159,14 +166,14 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 					String decodedSig = "";
 					for (String partCipher:media.getCipher().split("&")) {
 
-						
-						
+
+
 						if (partCipher.startsWith("s=")) {
 							decodedSig = CipherManager.dechiperSig(URLDecoder.decode(partCipher.replace("s=", "")), response.getAssets().getJs());
 						}
 
 						if (partCipher.startsWith("url=")) {
-							 tempUrl=URLDecoder.decode(partCipher.replace("url=", ""));
+							tempUrl = URLDecoder.decode(partCipher.replace("url=", ""));
 
 							for (String url_part:tempUrl.split("&")) {
 								if (url_part.startsWith("s=")) {
@@ -175,11 +182,11 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 							}
 						}
 					}
-						
+
 					String	FinalUrl= tempUrl + "&sig=" + decodedSig;
 					media.setUrl(FinalUrl);
 					links.add(media);
-					
+
 
 				} else {
 					links.add(media);
@@ -194,7 +201,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 		return links;
 	}
 
-	
+
 
 
 

@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
 
 
 											   }
-										   }).Extract(edit.getText().toString());
+										   }).useDefaultLogin().Extract(edit.getText().toString());
 
 								   }
 							   }));
