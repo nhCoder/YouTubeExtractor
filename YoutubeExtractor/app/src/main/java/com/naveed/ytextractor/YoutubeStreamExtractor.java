@@ -176,12 +176,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 						}
 					}
 						
-					String FinalUrl;
-					if (tempUrl.contains("&lsig=")) {
-						FinalUrl = tempUrl + "&sig=" + decodedSig;
-					} else {
-						FinalUrl = tempUrl + "&signature=" + decodedSig;
-					}			
+					String	FinalUrl= tempUrl + "&sig=" + decodedSig;
 					media.setUrl(FinalUrl);
 					links.add(media);
 					
