@@ -18,17 +18,18 @@ Dependencies Used • Gson • Mozilla Rhino • UniversalVideoView(Used only fo
 
 Example
 
-new YoutubeStreamExtractor(new YoutubeStreamExtractor.ExtractorListner(){ Override public void onExtractionDone(List adativeStream, final List muxedStream, YoutubeMeta meta) {
+new YoutubeStreamExtractor(new YoutubeStreamExtractor.ExtractorListner(){ 
+    @Override 
+    public void onExtractionDone(List adativeStream, final List muxedStream, YoutubeMeta meta) {
 
-     }
-   @Override
-   public void onExtractionGoesWrong(final ExtractorException e) 
-     {         
-     }
-     }).Extract(YOUTUBE_ID/LINK); 
+    }
+    @Override
+    public void onExtractionGoesWrong(final ExtractorException e) {         
+    }
+   }).Extract(YOUTUBE_ID / LINK); 
 
 
 
 For age restricted Videos
 
-For extraction of age restricted videos use useDefaultLogin() to Use default cookie.. OR YOU CAN override with your own cookies by method setHeaders
+For extraction of age restricted videos use useDefaultLogin() to Use default cookie.. OR YOU CAN override with your own cookies by using method setHeaders 
