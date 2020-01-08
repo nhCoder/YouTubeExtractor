@@ -49,14 +49,14 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 		Headers.put("Accept-Language", "en");
 	}
 
-	public void setHeaders(Map<String, String> headers) {
+	public YoutubeStreamExtractor setHeaders(Map<String, String> headers) {
 		Headers = headers;
+		return this;
 	}
 
 	public YoutubeStreamExtractor useDefaultLogin() {
 		Headers.put("Cookie", Utils.loginCookie);
-		setHeaders(Headers);
-		return this;
+		return setHeaders(Headers);	
 	}
 
 	public Map<String, String> getHeaders() {
