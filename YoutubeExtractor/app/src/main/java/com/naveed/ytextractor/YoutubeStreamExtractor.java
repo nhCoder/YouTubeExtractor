@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.naveed.ytextractor.model.YTSubtitles;
 
 public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
@@ -27,6 +28,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 	Map<String,String> Headers=new HashMap<>();
 	List<YTMedia> adaptiveMedia=new ArrayList<>();
 	List<YTMedia> muxedMedia=new ArrayList<>();
+	List<YTSubtitles> subtitle=new ArrayList<>();
 	String regexUrl=("(?<=url=).*");
 	String regexYtshortLink="(http|https)://(www\\.|)youtu.be/.*";
 	String regexPageLink = ("(http|https)://(www\\.|m.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
@@ -74,7 +76,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 		if (Ex != null) {
 			listener.onExtractionGoesWrong(Ex);
 		} else {
-			listener.onExtractionDone(adaptiveMedia, muxedMedia, ytmeta);
+			listener.onExtractionDone(adaptiveMedia, muxedMedia,subtitle, ytmeta);
 		}
 	}
 
@@ -106,6 +108,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 			PlayerResponse playerResponse=parseJson(jsonBody);
 			ytmeta = playerResponse.getVideoDetails();
+			subtitle=playerResponse.getCaptions().getPlayerCaptionsTracklistRenderer().getCaptionTracks();
 			//Utils.copyToBoard(jsonBody);
 			if (playerResponse.getVideoDetails().getisLive()) {
 				parseLiveUrls(playerResponse.getStreamingData());
@@ -246,8 +249,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 	public interface ExtractorListner {
 		void onExtractionGoesWrong(ExtractorException e)
-		void onExtractionDone(List<YTMedia> adativeStream, List<YTMedia> muxedStream, YoutubeMeta meta)
-
+		void onExtractionDone(List<YTMedia> adativeStream, List<YTMedia> muxedStream,List<YTSubtitles> subList, YoutubeMeta meta)
 	}
 
 }     

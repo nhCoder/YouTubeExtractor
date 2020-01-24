@@ -1,4 +1,4 @@
-YouTubeExtractor
+**YouTubeExtractor**
 
 A Youtube urls extractor for java & android for streaming and downloading purpose.
 
@@ -12,12 +12,12 @@ I made this on my Android Device using AIDE(IDE), So i cant update gradle, so do
 - Extracts Live Videos Urls(hls) 
 - Extracts video info(title,author,description,view,etc)
 - Extracts Age restricted videos (Uses Cookie from a Google account)
+- Extracts YouTube Video Captions
 
-Usage
+### Usage
 
-Copy the classes or compile project.
+`Copy the classes or compile project.`
 
-.jar will be available soon
 
 ## Dependencies Used 
 - Gson
@@ -27,15 +27,26 @@ Copy the classes or compile project.
 Usage
 
 ```Java
-new YoutubeStreamExtractor(new YoutubeStreamExtractor.ExtractorListner(){ 
-				@Override 
-				public void onExtractionDone(List adativeStream, final List muxedStream, YoutubeMeta meta) {
-
+new YoutubeStreamExtractor(new YoutubeStreamExtractor.ExtractorListner(){
+				@Override
+				public void onExtractionDone(List<YTMedia> adativeStream, final List<YTMedia> muxedStream,List<YTSubtitles> subtitles, YoutubeMeta meta) {
+					//url to get subtitle
+					String subUrl=subtitles.get(0).getBaseUrl();
+					for (YTMedia media:adativeStream) {
+						if(media.isVideo()){
+							//is video
+						}else{
+							//is audio
+						}
+					}
 				}
 				@Override
-				public void onExtractionGoesWrong(final ExtractorException e) {         
+				public void onExtractionGoesWrong(final ExtractorException e) {
+					Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
 				}
-			}).Extract(YOUTUBE_ID / LINK); 
+			}).useDefaultLogin().Extract(URL/YOUTUBE_ID);
+             //use .useDefaultLogin() to extract age restricted videos 
+
 ```
 
 

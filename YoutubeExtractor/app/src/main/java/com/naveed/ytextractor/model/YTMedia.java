@@ -20,7 +20,13 @@ public class YTMedia
 	String audioQuality;
 	String url;
 	int fps;
+	boolean isVideo;
 
+	
+	public boolean isVideo() {
+		return getMimeType().contains("video");
+	}
+	
 	public void setFps(int fps) {
 		this.fps = fps;
 	}
