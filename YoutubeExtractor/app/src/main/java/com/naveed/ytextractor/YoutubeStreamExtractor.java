@@ -106,7 +106,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 			PlayerResponse playerResponse=parseJson(jsonBody);
 			ytmeta = playerResponse.getVideoDetails();
-			//Utils.copyToBoard(playerResponse.getStreamingData().);
+			//Utils.copyToBoard(jsonBody);
 			if (playerResponse.getVideoDetails().getisLive()) {
 				parseLiveUrls(playerResponse.getStreamingData());
 			} else {
@@ -122,7 +122,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 			}
 		}
 		catch (Exception e) {
-			LogUtils.log(Arrays.toString(e.getStackTrace()));// e.toString());
+			LogUtils.log(Arrays.toString(e.getStackTrace()));
 			Ex = new ExtractorException("Error While getting Youtube Data:" + e.getMessage());
 			this.cancel(true);
 		}
@@ -174,7 +174,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 						if (partCipher.startsWith("url=")) {
 							tempUrl = URLDecoder.decode(partCipher.replace("url=", ""));
-
+							
 							for (String url_part:tempUrl.split("&")) {
 								if (url_part.startsWith("s=")) {
 									decodedSig = CipherManager.dechiperSig(URLDecoder.decode(url_part.replace("s=", "")), response.getAssets().getJs());
@@ -184,6 +184,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 					}
 
 					String	FinalUrl= tempUrl + "&sig=" + decodedSig;
+					
 					media.setUrl(FinalUrl);
 					links.add(media);
 
