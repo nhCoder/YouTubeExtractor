@@ -108,7 +108,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void> {
 
 			PlayerResponse playerResponse=parseJson(jsonBody);
 			ytmeta = playerResponse.getVideoDetails();
-			subtitle=playerResponse.getCaptions().getPlayerCaptionsTracklistRenderer().getCaptionTracks();
+			subtitle=playerResponse.getCaptions() !=null ? playerResponse .getCaptions().getPlayerCaptionsTracklistRenderer().getCaptionTracks(): null;
 			//Utils.copyToBoard(jsonBody);
 			if (playerResponse.getVideoDetails().getisLive()) {
 				parseLiveUrls(playerResponse.getStreamingData());
