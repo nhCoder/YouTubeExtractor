@@ -16,17 +16,11 @@ public class YTMedia
 	double approxDurationMs;
 	int audioChannels;
 	int audioSampleRate;
-	String cipher;
+	String signatureCipher;
 	String audioQuality;
 	String url;
 	int fps;
-	boolean isVideo;
 
-	
-	public boolean isVideo() {
-		return getMimeType().contains("video");
-	}
-	
 	public void setFps(int fps) {
 		this.fps = fps;
 	}
@@ -34,9 +28,6 @@ public class YTMedia
 	public int getFps() {
 		return fps;
 	}
-	
-	
-
 
 	public void setItag(int itag)
 	{
@@ -178,14 +169,14 @@ public class YTMedia
 		return audioSampleRate;
 	}
 
-	public void setCipher(String cipher)
+	public void setSignatureCipher(String signatureCipher)
 	{
-		this.cipher = cipher;
+		this.signatureCipher = signatureCipher;
 	}
 
-	public String getCipher()
+	public String getSignatureCipher()
 	{
-		return cipher;
+		return signatureCipher;
 	}
 
 	public void setAudioQuality(String audioQuality)
@@ -207,11 +198,11 @@ public class YTMedia
 	{
 		return url;
 	}
-	
+
 	public boolean useCipher(){
-		
-		return (cipher!=null && cipher.contains("s="));
-		
+
+		return (signatureCipher !=null && signatureCipher.contains("s="));
+
 	}
-	
+
 }
