@@ -22,6 +22,6 @@ android {
 dependencies {
 	compile 'com.google.code.gson:gson:2.8.5'
 	compile 'com.linsea:universalvideoview:1.1.0@aar'
-	compile  'org.mozilla:rhino:1.7R4'
+	compile  'org.mozilla:rhino:1.7.10'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
