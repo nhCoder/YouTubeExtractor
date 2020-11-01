@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
             });
 		edit = (EditText)findViewById(R.id.mainEditText1);
 		btn = (Button)findViewById(R.id.mainButton1);
-		edit.setText("https://youtu.be/zjMtaw2mrrc");
+		edit.setText("https://youtu.be/vRXZj0DzXIA");
 		edit.setHint("id or url");
 		
 		btn.setOnClickListener((new OnClickListener(){
