@@ -233,7 +233,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 							{
 								if (url_part.startsWith("s="))
 								{
-									decodedSig = CipherManager.dechiperSig(URLDecoder.decode(partCipher.replace("s=", "")), playerResponse.getPlayerJs());
+									decodedSig = CipherManager.dechiperSig(URLDecoder.decode(url_part.replace("s=", "")), playerResponse.getPlayerJs());
 								}
 							}
 						}
