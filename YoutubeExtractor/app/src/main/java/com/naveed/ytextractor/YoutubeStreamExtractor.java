@@ -34,7 +34,9 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 	String regexYtshortLink="(http|https)://(www\\.|)youtu.be/.*";
 	String regexPageLink = ("(http|https)://(www\\.|m.|)youtube\\.com/watch\\?v=(.+?)( |\\z|&)");
 	String regexFindReason="(?<=(class=\"message\">)).*?(?=<)";
-	String regexPlayerJson="(?<=ytplayer.config\\s=).*?((\\}(\n|)\\}(\n|))|(\\}))(?=;)";
+	
+	String regexPlayerJson1="(?<=ytplayer.config\\s=).*?((\\}(\n|)\\}(\n|))|(\\}))(?=;)"; //original
+	String regexPlayerJson2="(?<=ytInitialPlayerResponse\\s=).*?(\\}(\\]|\\})\\})(?=;)";  //11.23.2020 After YouTube changes	
 	String PlayerBaseRegex="(?<=PLAYER_JS_URL\":\").*?(?=\")";
 	ExtractorListner listener;
 	private ExtractorException Ex;
@@ -43,10 +45,8 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 	private Response response;
 	private YoutubeMeta ytmeta;
 
-
-
-
-
+	PlayerResponse playerResponse;
+	private int selectedRegrexPlayerJson = 0; //Flag to check the selected regexPlayerJson variable
 
 	public YoutubeStreamExtractor(ExtractorListner EL)
 	{
@@ -122,9 +122,15 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 			String body = HTTPUtility.downloadPageSource("https://www.youtube.com/watch?v=" + Videoid + "&has_verified=1&bpctr=9999999999", Headers);
 			jsonBody = parsePlayerConfig(body);
 
+			if(selectedRegrexPlayerJson == 1){
+				playerResponse = parseJson1(jsonBody);
+				playerResponse.setPlayerJs(RegexUtils.matchGroup(PlayerBaseRegex, body));
+			}else if(selectedRegrexPlayerJson == 2){
+				playerResponse = parseJson2(jsonBody);
+				playerResponse.setPlayerJs(RegexUtils.matchGroup(PlayerBaseRegex, body));
+			}//else - When the situation comes, parsePlayerConfig() already throws an error.
 
-			PlayerResponse playerResponse=parseJson(jsonBody);
-			response.setPlayerJs(RegexUtils.matchGroup(PlayerBaseRegex, body));
+			
 			ytmeta = playerResponse.getVideoDetails();
 			subtitle = playerResponse.getCaptions() != null ? playerResponse .getCaptions().getPlayerCaptionsTracklistRenderer().getCaptionTracks(): null;
 			//Utils.copyToBoard(jsonBody);
@@ -155,13 +161,19 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 	}
 
 	/*this function creates Json models using Gson*/
-	private PlayerResponse parseJson(String body) throws Exception
+	private PlayerResponse parseJson1(String body) throws Exception
 	{
 		JsonParser parser=new JsonParser();
 		response = new GsonBuilder().serializeNulls().create().fromJson(parser.parse(body), Response.class);
 		return new GsonBuilder().serializeNulls().create().fromJson(response.getArgs().getPlayerResponse(), PlayerResponse.class);
 	}
 
+	private PlayerResponse parseJson2(String body) throws Exception {
+		JsonParser parser=new JsonParser();
+
+
+		return new GsonBuilder().serializeNulls().create().fromJson(parser.parse(body), PlayerResponse.class);
+	}
 	/*This function is used to check if webpage contain steam data and then gets the Json part of from the page using regex*/
 	private String parsePlayerConfig(String body) throws ExtractorException
 	{
@@ -170,12 +182,16 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 		{
 			throw new ExtractorException(RegexUtils.matchGroup(regexFindReason, body));
 		}
-		if (body.contains("ytplayer.config"))
-		{
-			return RegexUtils.matchGroup(regexPlayerJson, body);
+		if(RegexUtils.matchGroup(regexPlayerJson1, body) != null){
+			selectedRegrexPlayerJson = 1;
+			return RegexUtils.matchGroup(regexPlayerJson1, body);
+		}else if(RegexUtils.matchGroup(regexPlayerJson2, body) != null){
+			selectedRegrexPlayerJson = 2;
+			return RegexUtils.matchGroup(regexPlayerJson2, body);
 		}
 		else
 		{
+			selectedRegrexPlayerJson = 3;
 			throw new ExtractorException("This Video is unavialable");
 		}
 	}
@@ -206,7 +222,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 
 						if (partCipher.startsWith("s="))
 						{
-							decodedSig = CipherManager.dechiperSig(URLDecoder.decode(partCipher.replace("s=", "")), response.getPlayerJs());
+							decodedSig = CipherManager.dechiperSig(URLDecoder.decode(partCipher.replace("s=", "")), playerResponse.getPlayerJs());
 						}
 
 						if (partCipher.startsWith("url="))
@@ -217,7 +233,7 @@ public class YoutubeStreamExtractor extends AsyncTask<String,Void,Void>
 							{
 								if (url_part.startsWith("s="))
 								{
-									decodedSig = CipherManager.dechiperSig(URLDecoder.decode(url_part.replace("s=", "")), response.getPlayerJs());
+									decodedSig = CipherManager.dechiperSig(URLDecoder.decode(partCipher.replace("s=", "")), playerResponse.getPlayerJs());
 								}
 							}
 						}
